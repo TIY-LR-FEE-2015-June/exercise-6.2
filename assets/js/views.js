@@ -3,25 +3,15 @@ var ItemView = Backbone.View.extend({
   template: AppTemplates.item,
   parent: null,
 
-  events: {
-    click: 'select',
-  },
-
   initialize: function(options) {
     this.parent = options.parent;
     this.render();
   },
 
   render: function() {
-    var html = this.template(this.model);
+    var html = this.template(this.model.toJSON());
 
     this.$el.html(html);
-  },
-
-  select: function() {
-    var id = this.model.id;
-
-    this.parent.select(id);
   },
 });
 
@@ -33,7 +23,7 @@ var DetailView = Backbone.View.extend({
   },
 
   render: function() {
-    var html = this.template(this.model);
+    var html = this.template(this.model.toJSON());
 
     this.$el.html(html);
   },
@@ -60,15 +50,5 @@ var AppView = Backbone.View.extend({
 
       _this.$('ul').append(view.el);
     });
-  },
-
-  select: function(id) {
-    var model = this.collection.get(id);
-
-    var view = new DetailView({
-      model: model,
-    });
-
-    this.$('.content').html(view.el);
   },
 });
