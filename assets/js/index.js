@@ -1,23 +1,18 @@
-var teachers = new Backbone.Collection([
-  {
-    id: 1,
-    name: 'Ryan',
-  },
-  {
-    id: 2,
-    name: 'Daniel',
-  },
-]);
+var Model = Backbone.Model.extend({
+  idAttribute: '_id',
+});
+
+var Collection = Backbone.Collection.extend({
+  model: Model,
+  url: 'http://tiny-lr.herokuapp.com/collections/teachers',
+});
 
 var Router = Backbone.Router.extend({
   initialize: function() {
-    this.collection = teachers;
+    this.collection = new Collection();
+    this.collection.fetch();
 
-    this.mainView = new AppView({
-      collection: this.collection,
-    });
-
-    $('#target').html(this.mainView.el);
+    this.repopulateMain();
   },
 
   routes: {
@@ -30,13 +25,31 @@ var Router = Backbone.Router.extend({
   },
 
   show: function(id) {
-    var model = this.collection.get(id);
+    var _this = this;
+    var buildShow = function() {
+      if (_this.currentDetail) {
+        _this.currentDetail.remove();
+      }
 
-    var view = new DetailView({
-      model: model,
+      var model = _this.collection.get(id);
+
+      _this.currentDetail = new DetailView({
+        model: model,
+      });
+
+      $('.content').html(_this.currentDetail.el);
+    };
+
+    buildShow();
+    this.listenTo(this.collection, 'sync', buildShow);
+  },
+
+  repopulateMain: function() {
+    this.mainView = new AppView({
+      collection: this.collection,
     });
 
-    $('.content').html(view.el);
+    $('#target').html(this.mainView.el);
   },
 });
 

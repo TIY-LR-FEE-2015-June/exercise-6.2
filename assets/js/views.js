@@ -23,7 +23,13 @@ var DetailView = Backbone.View.extend({
   },
 
   render: function() {
-    var html = this.template(this.model.toJSON());
+    var data = {};
+
+    if (this.model && this.model.toJSON) {
+      data = this.model.toJSON();
+    }
+
+    var html = this.template(data);
 
     this.$el.html(html);
   },
@@ -34,12 +40,13 @@ var AppView = Backbone.View.extend({
 
   initialize: function() {
     this.render();
+    this.listenTo(this.collection, 'sync', this.render);
   },
 
   render: function() {
     var _this = this;
 
-    var html = this.template(this.collection);
+    var html = this.template(this.collection.toJSON());
     this.$el.html(html);
 
     this.collection.forEach(function(teacher) {
